@@ -1,4 +1,4 @@
-module github.com/tiktok-sim/backend
+module tiktok-sim/backend
 
 go 1.23.4
 
