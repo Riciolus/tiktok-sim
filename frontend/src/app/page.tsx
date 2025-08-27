@@ -39,7 +39,8 @@ export interface Video {
 async function getVideos() {
   const res = await fetch("http://localhost:8080/api/videos");
   if (!res.ok) throw new Error("Failed to fetch");
-  return res.json();
+  const json = await res.json();
+  return json.videos;
 }
 
 export default function Feed() {
@@ -133,7 +134,7 @@ export default function Feed() {
               videoRefs.current[vid.id] = el;
             }}
             data-id={vid.id}
-            src={`http://localhost:8080${vid.url}`}
+            src={vid.url}
             autoPlay={i === 0}
             loop
             playsInline
