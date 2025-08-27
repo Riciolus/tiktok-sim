@@ -1,7 +1,7 @@
 package main
 
 import (
-    "tiktok-sim/backend/router"
+	"tiktok-sim/backend/router"
 )
 
 func main() {

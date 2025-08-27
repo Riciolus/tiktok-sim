@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import {
   Bookmark,
   Heart,
@@ -11,103 +12,35 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-const dummyVideos = [
-  {
-    id: "vid_1",
-    filename: "supernayrdf.mp4",
-    url: "/videos/supernayrdf.mp4",
-    caption: "Super Nayr dance challenge 🔥",
-    uploader: {
-      id: "user_1",
-      username: "nayr",
-      avatar: "/avatars/nayr.png",
-    },
-    stats: {
-      likes: 120,
-      comments: 15,
-      shares: 8,
-      views: 800,
-    },
-    tags: ["dance", "challenge", "fun"],
-    createdAt: "2025-08-26T14:00:00Z",
-  },
-  {
-    id: "vid_2",
-    filename: "hungrydogeatingbacon.mp4",
-    url: "/videos/hungrydogeatingbacon.mp4",
-    caption: "POV: Dog discovers bacon 🐶🥓",
-    uploader: {
-      id: "user_2",
-      username: "doglover",
-      avatar: "/avatars/doglover.png",
-    },
-    stats: {
-      likes: 500,
-      comments: 42,
-      shares: 19,
-      views: 2400,
-    },
-    tags: ["dog", "food", "cute"],
-    createdAt: "2025-08-25T09:30:00Z",
-  },
-  {
-    id: "vid_3",
-    filename: "oline.mp4",
-    url: "/videos/oline.mp4",
-    caption: "Oline’s singing cover 🎤✨",
-    uploader: {
-      id: "user_3",
-      username: "oline",
-      avatar: "/avatars/oline.png",
-    },
-    stats: {
-      likes: 310,
-      comments: 27,
-      shares: 12,
-      views: 1500,
-    },
-    tags: ["music", "cover", "singing"],
-    createdAt: "2025-08-20T20:15:00Z",
-  },
-  {
-    id: "vid_4",
-    filename: "ribka.mp4",
-    url: "/videos/ribka.mp4",
-    caption: "Ribka kocak singing cover 🎤✨",
-    uploader: {
-      id: "user_4",
-      username: "ribka",
-      avatar: "/avatars/oline.png",
-    },
-    stats: {
-      likes: 310,
-      comments: 27,
-      shares: 12,
-      views: 1500,
-    },
-    tags: ["music", "cover", "singing"],
-    createdAt: "2025-08-20T20:15:00Z",
-  },
-  {
-    id: "vid_5",
-    filename: "ella2.mp4",
-    url: "/videos/ella2.mp4",
-    caption: "Ella cantikk 🎤✨",
-    uploader: {
-      id: "user_5",
-      username: "ella",
-      avatar: "/avatars/ella.png",
-    },
-    stats: {
-      likes: 2817,
-      comments: 127,
-      shares: 89,
-      views: 30000,
-    },
-    tags: ["JKT48", "cover", "singing"],
-    createdAt: "2025-08-20T20:15:00Z",
-  },
-];
+export interface User {
+  id: string;
+  username: string;
+  avatar: string;
+}
+
+export interface VideoStats {
+  likes: number;
+  comments: number;
+  shares: number;
+  views: number;
+}
+
+export interface Video {
+  id: string;
+  filename: string;
+  url: string;
+  caption: string;
+  uploader: User;
+  stats: VideoStats;
+  tags: string[];
+  createdAt: string; // ISO date string
+}
+
+async function getVideos() {
+  const res = await fetch("http://localhost:8080/api/videos");
+  if (!res.ok) throw new Error("Failed to fetch");
+  return res.json();
+}
 
 export default function Feed() {
   const [playingId, setPlayingId] = useState<string | null>(null);
@@ -115,33 +48,44 @@ export default function Feed() {
   const [showVolume, setShowVolume] = useState(false);
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
 
+  const {
+    data: videos,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["videos"],
+    queryFn: getVideos,
+  });
+
   // Detect visible video on viewport and play it, and pause else
   useEffect(() => {
+    if (!videos) return; // only run when videos are fetched
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const video = entry.target as HTMLVideoElement;
 
           if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
-            // Play the visible one
             video.play();
             setPlayingId(video.dataset.id!);
           } else {
-            // Pause when not in view
             video.pause();
           }
         });
       },
-      { threshold: [0.7] } // at least 70% visible
+      { threshold: [0.7] }
     );
 
-    // Observe all videos
     Object.values(videoRefs.current).forEach((video) => {
       if (video) observer.observe(video);
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [videos]); // rerun when videos are fetched
+
+  if (isLoading) return <div></div>;
+  if (error) return <p>Error loading videos</p>;
 
   const togglePlay = (id: string) => {
     const video = videoRefs.current[id];
@@ -175,7 +119,7 @@ export default function Feed() {
         snap-y snap-mandatory
         scroll-smooth"
     >
-      {dummyVideos.map((vid, i) => (
+      {videos.map((vid: Video, i: number) => (
         <div
           className="relative  min-w-xl w-fit h-screen min-h-screen snap-start  rounded-xl py-1.5"
           key={vid.id}
@@ -189,7 +133,7 @@ export default function Feed() {
               videoRefs.current[vid.id] = el;
             }}
             data-id={vid.id}
-            src={vid.url}
+            src={`http://localhost:8080${vid.url}`}
             autoPlay={i === 0}
             loop
             playsInline
