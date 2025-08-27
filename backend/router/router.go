@@ -6,9 +6,10 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(pool *pgxpool.Pool) *gin.Engine {
     r := gin.Default()
 
     // Allow CORS
@@ -27,7 +28,8 @@ func SetupRouter() *gin.Engine {
     // API routes
     api := r.Group("/api")
     {
-        api.GET("/videos", controllers.GetVideos)
+        vc := &controllers.VideoController{DB: pool}
+        api.GET("/videos", vc.GetVideos)
         // add more routes here, e.g., api.POST("/videos"), etc.
     }
 
