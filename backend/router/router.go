@@ -29,8 +29,18 @@ func SetupRouter(pool *pgxpool.Pool) *gin.Engine {
     api := r.Group("/api")
     {
         vc := &controllers.VideoController{DB: pool}
-        api.GET("/videos", vc.GetVideos)
-        // add more routes here, e.g., api.POST("/videos"), etc.
+        uc := &controllers.UserController{DB: pool}
+        ec := &controllers.EventController{DB: pool}
+        
+        // USERS
+        api.POST("/user", uc.CreateUser)
+        api.GET("/user", uc.GetUser)
+        
+        // VIDEOS
+        api.GET("/videos", vc.GetVideos)   
+        
+        // EVENTS
+        api.POST("/events", ec.CreateEvent)
     }
 
     return r

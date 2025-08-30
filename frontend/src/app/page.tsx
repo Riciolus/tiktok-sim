@@ -183,22 +183,22 @@ export default function Feed() {
           </div>
 
           <div className="absolute bottom-10 right-0 flex flex-col items-center justify-center space-y-9  mr-5">
-            <button>
+            <button className="cursor-pointer">
               <div className="w-12 h-12 bg-neutral-500 rounded-full"></div>
             </button>
 
-            <button>
+            <button className="cursor-pointer">
               <Heart className="w-8 h-8" />
               <span>{vid.stats.likes}</span>
             </button>
-            <button>
+            <button className="cursor-pointer">
               <MessageCircle className="w-8 h-8" />
               <span>{vid.stats.comments}</span>
             </button>
-            <button>
+            <button className="cursor-pointer">
               <Bookmark className="w-8 h-8" />
             </button>
-            <button>
+            <button className="cursor-pointer">
               <Share className="w-8 h-8" />
               <span>{vid.stats.shares}</span>
             </button>
