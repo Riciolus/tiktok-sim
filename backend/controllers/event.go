@@ -51,10 +51,28 @@ func (ec *EventController) CreateEvent(c *gin.Context) {
         _, err = tx.Exec(context.Background(),
             "UPDATE video_stats SET likes = likes + 1 WHERE video_id = $1",
             body.VideoID)
+        
+        if err == nil {
+        // mark user has liked this video
+        _, err = tx.Exec(context.Background(), `
+            INSERT INTO user_video_actions (user_id, video_id, liked, updated_at)
+            VALUES ($1, $2, true, now())
+            ON CONFLICT (user_id, video_id)
+            DO UPDATE SET liked = true, updated_at = now()
+        `, body.UserID, body.VideoID)
+    }
     case "share":
         _, err = tx.Exec(context.Background(),
             "UPDATE video_stats SET shares = shares + 1 WHERE video_id = $1",
             body.VideoID)
+    case "bookmark":
+        _, err = tx.Exec(context.Background(), `
+            INSERT INTO user_video_actions (user_id, video_id, bookmarked, updated_at)
+            VALUES ($1, $2, true, now())
+            ON CONFLICT (user_id, video_id)
+            DO UPDATE SET bookmarked = true, updated_at = now()
+        `, body.UserID, body.VideoID)
+
     case "skip":
         _, err = tx.Exec(context.Background(),
             "UPDATE video_stats SET skips = skips + 1 WHERE video_id = $1",

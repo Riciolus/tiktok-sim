@@ -2,6 +2,7 @@ package router
 
 import (
 	"tiktok-sim/backend/controllers"
+	"tiktok-sim/backend/middleware"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -31,11 +32,22 @@ func SetupRouter(pool *pgxpool.Pool) *gin.Engine {
         vc := &controllers.VideoController{DB: pool}
         uc := &controllers.UserController{DB: pool}
         ec := &controllers.EventController{DB: pool}
+        ac := &controllers.AuthController{DB: pool}
         
         // USERS
-        api.POST("/user", uc.CreateUser)
         api.GET("/user", uc.GetUser)
-        
+
+        // AUTH
+        auth := api.Group("/auth")
+        {
+            auth.POST("/login", ac.Login)
+            auth.POST("/logout", ac.Logout)
+            auth.POST("/register", ac.Register)
+            auth.POST("/refresh", ac.Refresh)
+            auth.GET("/me", middleware.AuthMiddleware() ,ac.Me)
+            // (Optional, for scaling later)
+            // auth.GET("/session", authController.Session)
+        }
         // VIDEOS
         api.GET("/videos", vc.GetVideos)   
         

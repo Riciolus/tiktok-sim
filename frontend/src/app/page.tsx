@@ -1,210 +1,50 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import {
-  Bookmark,
-  Heart,
-  MessageCircle,
-  Play,
-  Share,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import FeedSection from "@/components/FeedSection";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 
-export interface User {
-  id: string;
-  username: string;
-  avatar: string;
-}
-
-export interface VideoStats {
-  likes: number;
-  comments: number;
-  shares: number;
-  views: number;
-}
-
-export interface Video {
-  id: string;
-  filename: string;
-  url: string;
-  caption: string;
-  uploader: User;
-  stats: VideoStats;
-  tags: string[];
-  createdAt: string; // ISO date string
-}
-
-async function getVideos() {
-  const res = await fetch("http://localhost:8080/api/videos");
-  if (!res.ok) throw new Error("Failed to fetch");
-  const json = await res.json();
-  return json.videos;
-}
+const sidebarItems = [
+  { name: "For You", url: "/" },
+  { name: "Explore", url: "/explore" },
+  { name: "Following", url: "/following" },
+];
 
 export default function Feed() {
-  const [playingId, setPlayingId] = useState<string | null>(null);
-  const [volume, setVolume] = useState(10);
-  const [showVolume, setShowVolume] = useState(false);
-  const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
-
-  const {
-    data: videos,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["videos"],
-    queryFn: getVideos,
-  });
-
-  // Detect visible video on viewport and play it, and pause else
-  useEffect(() => {
-    if (!videos) return; // only run when videos are fetched
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const video = entry.target as HTMLVideoElement;
-
-          if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
-            video.play();
-            setPlayingId(video.dataset.id!);
-          } else {
-            video.pause();
-          }
-        });
-      },
-      { threshold: [0.7] }
-    );
-
-    Object.values(videoRefs.current).forEach((video) => {
-      if (video) observer.observe(video);
-    });
-
-    return () => observer.disconnect();
-  }, [videos]); // rerun when videos are fetched
-
-  if (isLoading) return <div></div>;
-  if (error) return <p>Error loading videos</p>;
-
-  const togglePlay = (id: string) => {
-    const video = videoRefs.current[id];
-    if (!video) return;
-
-    if (playingId === id) {
-      video.pause();
-      setPlayingId(null);
-    } else {
-      Object.entries(videoRefs.current).forEach(([vidId, vidEl]) => {
-        if (vidEl && vidId !== id) {
-          vidEl.pause();
-        }
-      });
-      video.play();
-      setPlayingId(id);
-    }
-  };
-
-  const handleVolume = (value: string) => {
-    const newVolume = Number(value);
-    setVolume(newVolume);
-
-    if (playingId && videoRefs.current[playingId]) {
-      videoRefs.current[playingId]!.volume = newVolume / 100;
-    }
-  };
   return (
-    <div
-      className="flex flex-col items-center h-screen py-1.5 overflow-y-scroll
-        snap-y snap-mandatory
-        scroll-smooth"
-    >
-      {videos.map((vid: Video, i: number) => (
-        <div
-          className="relative  min-w-xl w-fit h-screen min-h-screen snap-start  rounded-xl py-1.5"
-          key={vid.id}
-        >
-          <div className="absolute inset-0 w-full h-full flex justify-center items-center">
-            {playingId !== vid.id && <Play className="w-22 h-22" />}
-          </div>
-
-          <video
-            ref={(el) => {
-              videoRefs.current[vid.id] = el;
-            }}
-            data-id={vid.id}
-            src={vid.url}
-            autoPlay={i === 0}
-            loop
-            playsInline
-            onClick={() => togglePlay(vid.id)}
-            className="rounded-xl w-full object-fit h-full"
-          />
-
-          <div
-            onMouseEnter={() => setShowVolume(true)}
-            onMouseLeave={() => setShowVolume(false)}
-            className="flex space-x-3  absolute top-4.5 left-3"
-          >
-            <button>
-              {volume === 0 ? (
-                <VolumeX className="w-5 h-5" />
-              ) : (
-                <Volume2 className="w-5 h-5" />
-              )}
-            </button>
-            {showVolume && (
-              <div className="flex justify-center items-center space-x-1 bg-neutral-800/35 px-3 rounded-xl">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={volume}
-                  onChange={(e) => handleVolume(e.target.value)}
-                  className="
-          w-full h-1 rounded-lg appearance-none cursor-pointer 
-          bg-neutral-400 accent-neutral-600
-        "
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="absolute bottom-0 h-28 bg-gradient-to-t from-80% from-neutral-900/50 to-transparent inset-x-0 px-3 py-6">
-            <span>{vid.caption}</span>
-            <div>
-              {vid.tags.map((tag, index) => (
-                <span className="text-blue-300" key={index}>
-                  #{tag}{" "}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="absolute bottom-10 right-0 flex flex-col items-center justify-center space-y-9  mr-5">
-            <button className="cursor-pointer">
-              <div className="w-12 h-12 bg-neutral-500 rounded-full"></div>
-            </button>
-
-            <button className="cursor-pointer">
-              <Heart className="w-8 h-8" />
-              <span>{vid.stats.likes}</span>
-            </button>
-            <button className="cursor-pointer">
-              <MessageCircle className="w-8 h-8" />
-              <span>{vid.stats.comments}</span>
-            </button>
-            <button className="cursor-pointer">
-              <Bookmark className="w-8 h-8" />
-            </button>
-            <button className="cursor-pointer">
-              <Share className="w-8 h-8" />
-              <span>{vid.stats.shares}</span>
-            </button>
-          </div>
-        </div>
-      ))}
+    <div className="flex h-screen ">
+      <Sidebar />
+      <div className="flex flex-1 justify-center">
+        <FeedSection />
+      </div>
+      <UploadButton />
     </div>
   );
 }
+
+const Sidebar = () => {
+  return (
+    <div className="p-5">
+      <h1 className="py-3 text-xl">TOKTOK</h1>
+      <div className="flex flex-col space-y-3">
+        {sidebarItems.map((item, i) => (
+          <Link href={item.url} key={i}>
+            {item.name}
+          </Link>
+        ))}
+        <span>Profile</span>
+      </div>
+    </div>
+  );
+};
+
+const UploadButton = () => {
+  return (
+    <div className="p-5">
+      <div className="flex cursor-pointer space-x-1.5 justify-center items-center bg-neutral-800 px-3 py-2 rounded-3xl">
+        <Plus />
+        <span>Upload Video</span>
+      </div>
+    </div>
+  );
+};
