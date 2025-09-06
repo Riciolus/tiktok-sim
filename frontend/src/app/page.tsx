@@ -1,42 +1,27 @@
 "use client";
 
 import FeedSection from "@/components/FeedSection";
+import LoginModal from "@/components/LoginModal";
+import Sidebar from "@/components/Sidebar";
 import { Plus } from "lucide-react";
-import Link from "next/link";
-
-const sidebarItems = [
-  { name: "For You", url: "/" },
-  { name: "Explore", url: "/explore" },
-  { name: "Following", url: "/following" },
-];
+import { useState } from "react";
 
 export default function Feed() {
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+
   return (
     <div className="flex h-screen ">
-      <Sidebar />
+      <Sidebar onLoginClick={() => setIsLoginOpen(true)} />
       <div className="flex flex-1 justify-center">
         <FeedSection />
       </div>
       <UploadButton />
+
+      {/* login popup */}
+      {isLoginOpen && <LoginModal onClose={() => setIsLoginOpen(false)} />}
     </div>
   );
 }
-
-const Sidebar = () => {
-  return (
-    <div className="p-5">
-      <h1 className="py-3 text-xl">TOKTOK</h1>
-      <div className="flex flex-col space-y-3">
-        {sidebarItems.map((item, i) => (
-          <Link href={item.url} key={i}>
-            {item.name}
-          </Link>
-        ))}
-        <span>Profile</span>
-      </div>
-    </div>
-  );
-};
 
 const UploadButton = () => {
   return (

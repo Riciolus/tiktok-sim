@@ -3,11 +3,16 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-type User = { id: string; username: string } | null;
+type User = { id: string; username: string; avatar?: string } | null;
 
-const AuthContext = createContext<{ user: User; loading: boolean }>({
+const AuthContext = createContext<{
+  user: User;
+  loading: boolean;
+  setUser: (u: User) => void;
+}>({
   user: null,
   loading: true,
+  setUser: () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -15,17 +20,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Example: fetch session from your API
-    fetch("http://localhost:8080/api/auth/session")
-      .then((res) => res.json())
-      .then((data) => {
-        setUser(data.user || null);
-        setLoading(false);
-      });
+    // check session on mount
+    fetch("http://localhost:8080/api/auth/me", {
+      credentials: "include", // <--- important for cookies
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("not authenticated");
+        return res.json();
+      })
+      .then((data) => setUser(data.user || null))
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, loading, setUser }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 
