@@ -1,7 +1,7 @@
 "use client";
 
+import AuthModal from "@/components/AuthModal";
 import FeedSection from "@/components/FeedSection";
-import LoginModal from "@/components/LoginModal";
 import Sidebar from "@/components/Sidebar";
 import { Plus } from "lucide-react";
 import { useState } from "react";
@@ -18,7 +18,7 @@ export default function Feed() {
       <UploadButton />
 
       {/* login popup */}
-      {isLoginOpen && <LoginModal onClose={() => setIsLoginOpen(false)} />}
+      {isLoginOpen && <AuthModal onClose={() => setIsLoginOpen(false)} />}
     </div>
   );
 }

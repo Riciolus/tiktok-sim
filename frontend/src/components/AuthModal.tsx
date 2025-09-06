@@ -1,8 +1,9 @@
 import { useAuth } from "@/context/AuthContext";
 import { useMutation } from "@tanstack/react-query";
+import { on } from "events";
 import { useState } from "react";
 
-type LoginModalProps = {
+type AuthModalProps = {
   onClose: () => void;
 };
 
@@ -13,10 +14,10 @@ type UserProps = {
   display_name?: string;
 };
 
-export default function LoginModal({ onClose }: LoginModalProps) {
+export default function AuthModal({ onClose }: AuthModalProps) {
   const [isRegister, setIsRegister] = useState(false);
   const [error, setError] = useState<string>("");
-  const { setUser } = useAuth();
+  const { setUser, setAccessToken } = useAuth();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -49,7 +50,14 @@ export default function LoginModal({ onClose }: LoginModalProps) {
     },
 
     onSuccess: (data) => {
+      if (isRegister) {
+        setIsRegister(false)
+        return 
+      }
+
       setUser(data.user);
+      setAccessToken(data.access_token)
+      onClose();
     },
 
     onError: (error: Error) => {

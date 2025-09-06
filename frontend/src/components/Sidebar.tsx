@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useMutation } from "@tanstack/react-query";
 
 type SidebarProps = {
   onLoginClick: () => void;
@@ -11,10 +12,34 @@ const sidebarItems = [
   { name: "Following", url: "/following" },
 ];
 
-const Sidebar = ({ onLoginClick }: SidebarProps) => {
-  const { user, loading } = useAuth();
+async function logoutRequest() {
+  return fetch("http://localhost:8080/api/auth/logout", {
+    method: "POST",
+    credentials: "include",
+  }).then((res) => {
+    if (!res.ok) {
+      throw new Error("Logout failed");
+    }
+    return res.json().catch(() => null); // handle empty body
+  });
+}
 
-  if (loading) return <div>Loading...</div>;
+export function useLogout() {
+  return useMutation({
+    mutationFn: logoutRequest,
+    onSuccess: () => {
+      window.location.reload(); 
+    },
+    onError: (error) => {
+      console.error("Logout error:", error);
+    },
+  });
+}
+
+const Sidebar = ({ onLoginClick }: SidebarProps) => {
+  const { user} = useAuth();
+  const { mutate: logout } = useLogout();
+
   return (
     <div className="p-5">
       <h1 className="py-3 text-xl">TOKTOK</h1>
@@ -25,7 +50,12 @@ const Sidebar = ({ onLoginClick }: SidebarProps) => {
           </Link>
         ))}
         {user ? (
-          <span>Profike</span>
+          <>
+            <span>Profile</span>
+            <span>{user.username}</span>
+            <span>{user.id}</span>
+            <button onClick={() => logout()}>Logout</button>
+          </>
         ) : (
           <button
             onClick={onLoginClick}
