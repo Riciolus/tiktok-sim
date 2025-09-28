@@ -50,7 +50,7 @@ export default function VideoActions({ vid, userId }: Props) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center space-y-6">
       {/* Profile placeholder */}
       <button className="cursor-pointer">
         <div className="w-12 h-12 bg-neutral-500 rounded-full"></div>
@@ -61,7 +61,7 @@ export default function VideoActions({ vid, userId }: Props) {
         className="cursor-pointer flex flex-col items-center"
         onClick={() => sendEvent("like")}
       >
-        <Heart className="w-8 h-8" />
+        <Heart className="w-8 h-8 fill-neutral-500/55" />
         <span>{vid.stats.likes}</span>
       </button>
 
@@ -70,7 +70,7 @@ export default function VideoActions({ vid, userId }: Props) {
         className="cursor-pointer flex flex-col items-center"
         onClick={() => sendEvent("comment")}
       >
-        <MessageCircle className="w-8 h-8" />
+        <MessageCircle className="w-8 h-8 fill-neutral-500/55" />
         <span>{vid.stats.comments}</span>
       </button>
 
@@ -79,7 +79,7 @@ export default function VideoActions({ vid, userId }: Props) {
         className="cursor-pointer flex flex-col items-center"
         onClick={() => sendEvent("bookmark")}
       >
-        <Bookmark className="w-8 h-8" />
+        <Bookmark className="w-8 h-8 fill-neutral-500/55" />
       </button>
 
       {/* Share */}
@@ -87,7 +87,7 @@ export default function VideoActions({ vid, userId }: Props) {
         className="cursor-pointer flex flex-col items-center"
         onClick={() => sendEvent("share")}
       >
-        <Share className="w-8 h-8" />
+        <Share className="w-8 h-8 " />
         <span>{vid.stats.shares}</span>
       </button>
     </div>

@@ -50,6 +50,7 @@ func SetupRouter(pool *pgxpool.Pool) *gin.Engine {
 		}
 		// VIDEOS
 		api.GET("/videos", vc.GetVideos)
+		api.POST("/videos", middleware.AuthMiddleware(), vc.CreateVideo)
 
 		// EVENTS
 		api.POST("/events", ec.CreateEvent)

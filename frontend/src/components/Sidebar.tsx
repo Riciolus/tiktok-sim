@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useMutation } from "@tanstack/react-query";
+import { Compass, Home, PlusSquare, User, UserCircle2, Users } from "lucide-react";
 
 type SidebarProps = {
   onLoginClick: () => void;
 };
 
 const sidebarItems = [
-  { name: "For You", url: "/" },
-  { name: "Explore", url: "/explore" },
-  { name: "Following", url: "/following" },
+  { name: "For You", url: "/", icon: Home },
+  { name: "Explore", url: "/explore", icon: Compass },
+  { name: "Following", url: "/following", icon: Users },
 ];
 
 async function logoutRequest() {
@@ -41,20 +42,29 @@ const Sidebar = ({ onLoginClick }: SidebarProps) => {
   const { mutate: logout } = useLogout();
 
   return (
-    <div className="p-5">
-      <h1 className="py-3 text-xl">TOKTOK</h1>
+    <div className="px-5">
+      <h1 className="py-3 text-xl font-semibold">TOKTOK </h1>
       <div className="flex flex-col space-y-3">
         {sidebarItems.map((item, i) => (
-          <Link href={item.url} key={i}>
+          <Link href={item.url} key={i} className="flex items-center gap-3">
+            <item.icon className="w-4 h-4"/>
             {item.name}
           </Link>
         ))}
         {user ? (
           <>
-            <span>Profile</span>
+            <Link href={`/profile/${user.id}`} className="flex items-center gap-3">
+              <UserCircle2 className="w-4 h-4"/>
+              Profile
+            </Link>
+            <Link href="/upload" className="flex items-center gap-3">
+              <PlusSquare className="w-4 h-4"/>
+              Upload
+            </Link>
             <span>{user.username}</span>
-            <span>{user.id}</span>
-            <button onClick={() => logout()}>Logout</button>
+            <button onClick={() => logout()}
+            className="px-3 py-1.5 bg-pink-700 rounded-lg cursor-pointer hover:bg-pink-900"
+              >Logout</button>
           </>
         ) : (
           <button

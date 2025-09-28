@@ -10,9 +10,8 @@ type Video struct {
 	Tags      []string  `json:"tags"`
 	CreatedAt time.Time `json:"createdAt"`
 
-	// Relations
-	Uploader User       `json:"uploader"`
-	Stats    VideoStats `json:"stats"`
+	Uploader UserPreview `json:"uploader"`
+	Stats    VideoStats  `json:"stats"`
 }
 
 type VideoStats struct {
@@ -23,18 +22,16 @@ type VideoStats struct {
 }
 
 type VideoEmbeddings struct {
-	VideoID string `json:"video_id"`
-	Embedding []float32 `json:"embedding"`
-	GlobalPopularityScore float64 `json:"global_popularity_score"`
+	VideoID               string    `json:"video_id"`
+	Embedding             []float32 `json:"embedding"`
+	GlobalPopularityScore float64   `json:"global_popularity_score"`
 }
-
 
 // still havent known the flow for this...
 type Comment struct {
-    ID        string    `json:"id"`
-    VideoID   string    `json:"video_id"`
-    UserID    string    `json:"user_id"`
-    Content   string    `json:"content"`
-    CreatedAt string    `json:"created_at"`
+	ID        string `json:"id"`
+	VideoID   string `json:"video_id"`
+	UserID    string `json:"user_id"`
+	Content   string `json:"content"`
+	CreatedAt string `json:"created_at"`
 }
-

@@ -1,35 +1,39 @@
 "use client";
 
-import AuthModal from "@/components/AuthModal";
 import FeedSection from "@/components/FeedSection";
-import Sidebar from "@/components/Sidebar";
+import Layout from "@/components/Layout";
+import { useAuth } from "@/context/AuthContext";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import Link from "next/link";
 
 export default function Feed() {
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-
   return (
-    <div className="flex h-screen ">
-      <Sidebar onLoginClick={() => setIsLoginOpen(true)} />
-      <div className="flex flex-1 justify-center">
-        <FeedSection />
-      </div>
-      <UploadButton />
+    <Layout>
+      <div className="w-full flex ">
+        <div className="flex-1">
+          <FeedSection />
+        </div>
 
-      {/* login popup */}
-      {isLoginOpen && <AuthModal onClose={() => setIsLoginOpen(false)} />}
-    </div>
+        <UploadButton />
+      </div>
+    </Layout>
   );
 }
 
 const UploadButton = () => {
+  const { user } = useAuth();
+
+  if (!user) return null;
+
   return (
     <div className="p-5">
-      <div className="flex cursor-pointer space-x-1.5 justify-center items-center bg-neutral-800 px-3 py-2 rounded-3xl">
+      <Link
+        href="/upload"
+        className="flex cursor-pointer space-x-1.5 justify-center items-center bg-neutral-800 px-3 py-2 rounded-3xl"
+      >
         <Plus />
         <span>Upload Video</span>
-      </div>
+      </Link>
     </div>
   );
 };

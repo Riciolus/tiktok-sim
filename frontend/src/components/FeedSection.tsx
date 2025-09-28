@@ -86,17 +86,19 @@ const FeedSection = () => {
 
   return (
     <section
-      className="flex flex-col items-center h-screen py-1.5 overflow-y-scroll
+      className="flex flex-col  items-center h-screen py-1.5 overflow-y-scroll
         snap-y snap-mandatory
-        scroll-smooth hide-scrollbar"
+        scroll-smooth hide-scrollbar w-full"
     >
       {videos.map((vid: Video, i: number) => (
         <div
-          className="relative  min-w-xl w-fit h-screen min-h-screen snap-start  rounded-xl py-1.5"
+          className="relative  min-w-xl max-w-5xl  w-fit h-screen min-h-screen snap-start  rounded-xl py-1.5"
           key={vid.id}
         >
           <div className="absolute inset-0 w-full h-full flex justify-center items-center">
-            {playingId !== vid.id && <Play className="w-22 h-22" />}
+            {playingId !== vid.id && (
+              <Play className="w-22 h-22 fill-white stroke-white " />
+            )}
           </div>
 
           <video
@@ -152,9 +154,13 @@ const FeedSection = () => {
               ))}
             </div>
           </div>
-
           <div className="absolute bottom-10 right-0 flex flex-col items-center justify-center space-y-9  mr-5">
-            <VideoActions userId="8e3f360e-e1a1-46a5-ad05-87e452e68f36" vid={vid} />
+            <div className="">
+              <VideoActions
+                userId="8e3f360e-e1a1-46a5-ad05-87e452e68f36"
+                vid={vid}
+              />
+            </div>
           </div>
         </div>
       ))}
