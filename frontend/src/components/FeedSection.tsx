@@ -1,10 +1,10 @@
 "use client";
 
-import { Video } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
-import { Play, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import VideoPlayer from "./VideoPlayer";
 import VideoActions from "./VideoActions";
+import { Video } from "@/lib/types";
 
 async function getVideos() {
   const res = await fetch("http://localhost:8080/api/videos");
@@ -28,14 +28,14 @@ const FeedSection = () => {
     queryFn: getVideos,
   });
 
-  // Detect visible video on viewport and play it, and pause else
+  // Detect visible video
   useEffect(() => {
-    if (!videos) return; // only run when videos are fetched
+    if (!videos) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const video = entry.target as HTMLVideoElement;
-
           if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
             video.play();
             setPlayingId(video.dataset.id!);
@@ -47,15 +47,9 @@ const FeedSection = () => {
       { threshold: [0.7] }
     );
 
-    Object.values(videoRefs.current).forEach((video) => {
-      if (video) observer.observe(video);
-    });
-
+    Object.values(videoRefs.current).forEach((v) => v && observer.observe(v));
     return () => observer.disconnect();
-  }, [videos]); // rerun when videos are fetched
-
-  if (isLoading) return <div></div>;
-  if (error) return <p>Error loading videos</p>;
+  }, [videos]);
 
   const togglePlay = (id: string) => {
     const video = videoRefs.current[id];
@@ -65,102 +59,50 @@ const FeedSection = () => {
       video.pause();
       setPlayingId(null);
     } else {
-      Object.entries(videoRefs.current).forEach(([vidId, vidEl]) => {
-        if (vidEl && vidId !== id) {
-          vidEl.pause();
-        }
+      // pause all others
+      Object.entries(videoRefs.current).forEach(([vidId, el]) => {
+        if (el && vidId !== id) el.pause();
       });
       video.play();
       setPlayingId(id);
     }
   };
 
-  const handleVolume = (value: string) => {
-    const newVolume = Number(value);
-    setVolume(newVolume);
-
+  // Keep actual DOM volume synced
+  useEffect(() => {
     if (playingId && videoRefs.current[playingId]) {
-      videoRefs.current[playingId]!.volume = newVolume / 100;
+      videoRefs.current[playingId]!.volume = volume / 100;
     }
-  };
+  }, [volume, playingId]);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <p>Error loading videos</p>;
 
   return (
     <section
-      className="flex flex-col  items-center h-screen py-1.5 overflow-y-scroll
-        snap-y snap-mandatory
-        scroll-smooth hide-scrollbar w-full"
+      className="flex flex-col items-center h-screen py-1.5 overflow-y-scroll
+      snap-y snap-mandatory scroll-smooth hide-scrollbar w-full"
     >
-      {videos.map((vid: Video, i: number) => (
-        <div
-          className="relative  min-w-xl max-w-5xl  w-fit h-screen min-h-screen snap-start  rounded-xl py-1.5"
-          key={vid.id}
-        >
-          <div className="absolute inset-0 w-full h-full flex justify-center items-center">
-            {playingId !== vid.id && (
-              <Play className="w-22 h-22 fill-white stroke-white " />
-            )}
-          </div>
-
-          <video
-            ref={(el) => {
-              videoRefs.current[vid.id] = el;
-            }}
-            data-id={vid.id}
-            src={vid.url}
-            autoPlay={i === 0}
-            loop
-            muted
-            playsInline
-            onClick={() => togglePlay(vid.id)}
-            className="rounded-xl w-full object-fit h-full"
+      {videos.map((vid: Video) => (
+        <div key={vid.id} className="min-h-full flex items-center my-1.5">
+          <VideoPlayer
+            vid={vid}
+            isActive={playingId === vid.id}
+            playingId={playingId}
+            setPlayingId={setPlayingId}
+            volume={volume}
+            setVolume={setVolume}
+            showVolume={showVolume}
+            setShowVolume={setShowVolume}
+            videoRef={(el) => (videoRefs.current[vid.id] = el)}
+            onTogglePlay={togglePlay}
           />
 
-          <div
-            onMouseEnter={() => setShowVolume(true)}
-            onMouseLeave={() => setShowVolume(false)}
-            className="flex space-x-3  absolute top-4.5 left-3"
-          >
-            <button>
-              {volume === 0 ? (
-                <VolumeX className="w-5 h-5" />
-              ) : (
-                <Volume2 className="w-5 h-5" />
-              )}
-            </button>
-            {showVolume && (
-              <div className="flex justify-center items-center space-x-1 bg-neutral-800/35 px-3 rounded-xl">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={volume}
-                  onChange={(e) => handleVolume(e.target.value)}
-                  className="
-          w-full h-1 rounded-lg appearance-none cursor-pointer 
-          bg-neutral-400 accent-neutral-600
-        "
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="absolute bottom-0 h-28 bg-gradient-to-t from-80% from-neutral-900/50 to-transparent inset-x-0 px-3 py-6">
-            <span>{vid.caption}</span>
-            <div>
-              {vid.tags.map((tag, index) => (
-                <span className="text-blue-300" key={index}>
-                  #{tag}{" "}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="absolute bottom-10 right-0 flex flex-col items-center justify-center space-y-9  mr-5">
-            <div className="">
-              <VideoActions
-                userId="8e3f360e-e1a1-46a5-ad05-87e452e68f36"
-                vid={vid}
-              />
-            </div>
+          <div className="absolute bottom-10 right-0 flex flex-col items-center justify-center space-y-9 mr-5">
+            <VideoActions
+              userId="8e3f360e-e1a1-46a5-ad05-87e452e68f36"
+              vid={vid}
+            />
           </div>
         </div>
       ))}
