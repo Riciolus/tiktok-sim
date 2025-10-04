@@ -80,17 +80,20 @@ const FeedSection = () => {
 
   return (
     <section
-      className="flex flex-col items-center h-screen overflow-y-scroll
+      className="flex flex-col items-center h-[calc(100vh-7rem)] md:h-screen  overflow-y-scroll
       snap-y snap-mandatory scroll-smooth hide-scrollbar w-full "
     >
       {videos.map((vid: Video) => (
-        <div key={vid.id} className="flex items-end space-x-3">
+        <div
+          key={vid.id}
+          className="relative flex items-end space-x-3   md:max-h-screen  max-w-screen md:w-fit"
+        >
           <VideoPlayer
             vid={vid}
             isActive={playingId === vid.id}
             playingId={playingId}
             setPlayingId={setPlayingId}
-            volume={volume}
+            volume={0}
             setVolume={setVolume}
             showVolume={showVolume}
             setShowVolume={setShowVolume}
@@ -98,7 +101,7 @@ const FeedSection = () => {
             onTogglePlay={togglePlay}
           />
 
-          <div className="flex flex-col items-center justify-center space-y-8">
+          <div className="absolute z-10 md:static right-3 flex flex-col items-center justify-center">
             <VideoActions
               userId="8e3f360e-e1a1-46a5-ad05-87e452e68f36"
               vid={vid}
@@ -109,5 +112,5 @@ const FeedSection = () => {
     </section>
   );
 };
-
+// max-h-[calc(100vh-4rem)]
 export default FeedSection;

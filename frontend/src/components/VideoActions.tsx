@@ -54,7 +54,7 @@ export default function VideoActions({ vid, userId }: Props) {
   };
 
   return (
-    <div className="flex flex-col items-center space-y-6">
+    <div className="flex flex-col items-center space-y-5 md:mb-6">
       {/* Profile placeholder */}
       <button className="cursor-pointer">
         <div className="w-12 h-12 bg-neutral-500 rounded-full"></div>

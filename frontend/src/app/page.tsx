@@ -2,17 +2,17 @@
 
 import FeedSection from "@/components/FeedSection";
 import Layout from "@/components/Layout";
-import UploadButton from "@/components/UploadButton";
+// import UploadButton from "@/components/UploadButton";
 
 export default function Feed() {
   return (
     <Layout>
-      <div className="w-full flex ">
+      <div className="w-full flex max-h-20">
         <div className="flex-1">
           <FeedSection />
         </div>
 
-        <UploadButton />
+        {/*ignore this {!isMobile && <UploadButton />} */}
       </div>
     </Layout>
   );
