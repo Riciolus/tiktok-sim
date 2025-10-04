@@ -80,11 +80,11 @@ const FeedSection = () => {
 
   return (
     <section
-      className="flex flex-col items-center h-screen py-1.5 overflow-y-scroll
-      snap-y snap-mandatory scroll-smooth hide-scrollbar w-full"
+      className="flex flex-col items-center h-screen overflow-y-scroll
+      snap-y snap-mandatory scroll-smooth hide-scrollbar w-full "
     >
       {videos.map((vid: Video) => (
-        <div key={vid.id} className="min-h-full flex items-center my-1.5">
+        <div key={vid.id} className="flex items-end space-x-3">
           <VideoPlayer
             vid={vid}
             isActive={playingId === vid.id}
@@ -98,7 +98,7 @@ const FeedSection = () => {
             onTogglePlay={togglePlay}
           />
 
-          <div className="absolute bottom-10 right-0 flex flex-col items-center justify-center space-y-9 mr-5">
+          <div className="flex flex-col items-center justify-center space-y-8">
             <VideoActions
               userId="8e3f360e-e1a1-46a5-ad05-87e452e68f36"
               vid={vid}

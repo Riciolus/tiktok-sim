@@ -16,6 +16,10 @@ type Props = {
   userId: string;
 };
 
+const buttonClass = `
+  cursor-pointer flex flex-col items-center 
+`;
+
 async function createEvent(userId: string, vidId: string, eventType: string) {
   const res = await fetch("http://localhost:8080/api/events", {
     method: "POST",
@@ -57,37 +61,25 @@ export default function VideoActions({ vid, userId }: Props) {
       </button>
 
       {/* Like */}
-      <button
-        className="cursor-pointer flex flex-col items-center"
-        onClick={() => sendEvent("like")}
-      >
-        <Heart className="w-8 h-8 fill-neutral-500/55" />
+      <button className={buttonClass} onClick={() => sendEvent("like")}>
+        <Heart className="w-6 h-6 fill-neutral-200" />
         <span>{vid.stats.likes}</span>
       </button>
 
       {/* Comment */}
-      <button
-        className="cursor-pointer flex flex-col items-center"
-        onClick={() => sendEvent("comment")}
-      >
-        <MessageCircle className="w-8 h-8 fill-neutral-500/55" />
+      <button className={buttonClass} onClick={() => sendEvent("comment")}>
+        <MessageCircle className="w-6 h-6 fill-neutral-200" />
         <span>{vid.stats.comments}</span>
       </button>
 
       {/* Bookmark */}
-      <button
-        className="cursor-pointer flex flex-col items-center"
-        onClick={() => sendEvent("bookmark")}
-      >
-        <Bookmark className="w-8 h-8 fill-neutral-500/55" />
+      <button className={buttonClass} onClick={() => sendEvent("bookmark")}>
+        <Bookmark className="w-6 h-6 fill-neutral-200" />
       </button>
 
       {/* Share */}
-      <button
-        className="cursor-pointer flex flex-col items-center"
-        onClick={() => sendEvent("share")}
-      >
-        <Share className="w-8 h-8 " />
+      <button className={buttonClass} onClick={() => sendEvent("share")}>
+        <Share className="w-6 h-6 " />
         <span>{vid.stats.shares}</span>
       </button>
     </div>
