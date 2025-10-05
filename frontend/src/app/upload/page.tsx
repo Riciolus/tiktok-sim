@@ -2,10 +2,8 @@
 
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
-// import { supabase } from "@/lib/supabaseClient";
 import { supabase } from "@/lib/supabaseClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { hash } from "crypto";
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 

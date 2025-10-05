@@ -1,14 +1,7 @@
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useMutation } from "@tanstack/react-query";
-import {
-  Compass,
-  Home,
-  PlusSquare,
-  User,
-  UserCircle2,
-  Users,
-} from "lucide-react";
+import { Compass, Home, PlusSquare, UserCircle2, Users } from "lucide-react";
 
 type SidebarProps = {
   onLoginClick: () => void;

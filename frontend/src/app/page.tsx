@@ -2,7 +2,7 @@
 
 import FeedSection from "@/components/FeedSection";
 import Layout from "@/components/Layout";
-// import UploadButton from "@/components/UploadButton";
+import UploadButton from "@/components/UploadButton";
 
 export default function Feed() {
   return (
@@ -12,7 +12,9 @@ export default function Feed() {
           <FeedSection />
         </div>
 
-        {/*ignore this {!isMobile && <UploadButton />} */}
+        <div className="md:block hidden">
+          <UploadButton />
+        </div>
       </div>
     </Layout>
   );

@@ -12,13 +12,20 @@ type Video struct {
 
 	Uploader UserPreview `json:"uploader"`
 	Stats    VideoStats  `json:"stats"`
+	UserAction UserAction `json:"user_action"`
 }
+
 
 type VideoStats struct {
 	Likes    int `json:"likes"`
 	Comments int `json:"comments"`
 	Shares   int `json:"shares"`
 	Views    int `json:"views"`
+}
+
+type UserAction struct {
+	Liked      bool `json:"liked"`
+	Bookmarked bool `json:"bookmarked"`
 }
 
 type VideoEmbeddings struct {

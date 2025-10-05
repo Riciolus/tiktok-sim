@@ -43,6 +43,8 @@ func AuthMiddleware() gin.HandlerFunc {
 
         // Save user_id in context for handlers
         c.Set("user_id", claims["user_id"].(string))
+
+        fmt.Println("Authenticated user:", claims["user_id"])
         c.Next()
     }
 }

@@ -19,25 +19,27 @@ type VideoController struct {
 func (vc *VideoController) GetVideos(c *gin.Context) {
 	rows, err := vc.DB.Query(context.Background(), `
 	SELECT
-  v.id,
-  v.filename,
-  v.url,
-  v.caption,
-  v.tags,
-  v.created_at,
-  u.id,
-  u.username,
-  u.avatar,
-  COALESCE(s.likes, 0),
-  COALESCE(s.comments, 0),
-  COALESCE(s.shares, 0),
-  COALESCE(s.views, 0)
-FROM videos v
-JOIN users u ON v.uploader_id = u.id
-LEFT JOIN video_stats s ON v.id = s.video_id
-ORDER BY v.created_at DESC
-LIMIT 20;
-
+	v.id,
+	v.filename,
+	v.url,
+	v.caption,
+	v.tags,
+	v.created_at,
+	u.id,
+	u.username,
+	u.avatar,
+	COALESCE(s.likes, 0),
+	COALESCE(s.comments, 0),
+	COALESCE(s.shares, 0),
+	COALESCE(s.views, 0),
+	COALESCE(ua.liked, false),
+	COALESCE(ua.bookmarked, false)
+	FROM videos v
+	JOIN users u ON v.uploader_id = u.id
+	LEFT JOIN video_stats s ON v.id = s.video_id
+	LEFT JOIN users_video_actions ua ON v.id = ua.video_id
+	ORDER BY v.created_at DESC
+	LIMIT 20;
 	`)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -62,6 +64,8 @@ LIMIT 20;
 			&v.Stats.Comments,
 			&v.Stats.Shares,
 			&v.Stats.Views,
+			&v.UserAction.Liked,
+			&v.UserAction.Bookmarked,
 		)
 
 		if err != nil {
@@ -123,6 +127,16 @@ func (vc *VideoController) CreateVideo(c *gin.Context) {
         RETURNING id, created_at
     `, uploaderID, body.Filename, body.URL, body.Caption, body.Tags).
 		Scan(&video.ID, &video.CreatedAt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 5. Insert video stats
+	_, err = vc.DB.Exec(context.Background(), `
+        INSERT INTO video_stats (video_id)
+        VALUES ($1)
+    `, video.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -18,6 +18,12 @@ export interface Video {
   caption: string;
   uploader: User;
   stats: VideoStats;
+  user_action: UserAction;
   tags: string[];
   createdAt: string; // ISO date string
+}
+
+interface UserAction {
+  liked: boolean;
+  bookmarked: boolean;
 }

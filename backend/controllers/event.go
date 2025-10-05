@@ -16,7 +16,7 @@ type EventController struct {
 func (ec *EventController) CreateEvent(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized", "user_id": userID})
 		return
 	}
 
@@ -61,24 +61,36 @@ func (ec *EventController) CreateEvent(c *gin.Context) {
 		if err == nil {
 			// mark user has liked this video
 			_, err = tx.Exec(context.Background(), `
-            INSERT INTO user_video_actions (user_id, video_id, liked, updated_at)
+            INSERT INTO users_video_actions (user_id, video_id, liked, updated_at)
             VALUES ($1, $2, true, now())
             ON CONFLICT (user_id, video_id)
             DO UPDATE SET liked = true, updated_at = now()
         `, userID, body.VideoID)
 		}
+
+	// add unlike event to decrease like count
+	case "unlike":
+		_, err = tx.Exec(context.Background(),
+			"UPDATE video_stats SET likes = GREATEST(likes - 1, 0) WHERE video_id = $1",
+			body.VideoID)
 	case "share":
 		_, err = tx.Exec(context.Background(),
 			"UPDATE video_stats SET shares = shares + 1 WHERE video_id = $1",
 			body.VideoID)
 	case "bookmark":
 		_, err = tx.Exec(context.Background(), `
-            INSERT INTO user_video_actions (user_id, video_id, bookmarked, updated_at)
+            INSERT INTO users_video_actions (user_id, video_id, bookmarked, updated_at)
             VALUES ($1, $2, true, now())
             ON CONFLICT (user_id, video_id)
             DO UPDATE SET bookmarked = true, updated_at = now()
         `, userID, body.VideoID)
-
+	case "remove_bookmark":
+		_, err = tx.Exec(context.Background(), `
+			INSERT INTO users_video_actions (user_id, video_id, bookmarked, updated_at)
+			VALUES ($1, $2, false, now())
+			ON CONFLICT (user_id, video_id)
+			DO UPDATE SET bookmarked = false, updated_at = now()
+		`, userID, body.VideoID)
 	case "skip":
 		_, err = tx.Exec(context.Background(),
 			"UPDATE video_stats SET skips = skips + 1 WHERE video_id = $1",
@@ -96,5 +108,5 @@ func (ec *EventController) CreateEvent(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": body})
+	c.JSON(http.StatusOK, gin.H{"status": true, "event": body})
 }

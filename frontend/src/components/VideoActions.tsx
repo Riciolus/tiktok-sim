@@ -1,26 +1,29 @@
+import { useAuth } from "@/context/AuthContext";
+import { Video } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Heart, MessageCircle, Bookmark, Share } from "lucide-react";
 import { useState } from "react";
 
-type EventType = "like" | "comment" | "share" | "bookmark" | "views";
-
-type Props = {
-  vid: {
-    id: string;
-    stats: {
-      likes: number;
-      comments: number;
-      shares: number;
-    };
-  };
-  userId: string;
-};
+type EventType =
+  | "like"
+  | "comment"
+  | "share"
+  | "bookmark"
+  | "views"
+  | "remove_bookmark"
+  | "unlike";
 
 const buttonClass = `
   cursor-pointer flex flex-col items-center 
 `;
 
-async function createEvent(userId: string, vidId: string, eventType: string) {
+async function createEvent(
+  userId: string,
+  vidId: string,
+  eventType: string,
+  accessToken: string
+) {
   const res = await fetch("http://localhost:8080/api/events", {
     method: "POST",
     body: JSON.stringify({
@@ -28,6 +31,10 @@ async function createEvent(userId: string, vidId: string, eventType: string) {
       video_id: vidId,
       event_type: eventType,
     }),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
   });
 
   if (!res.ok) throw new Error("Failed to Create Event");
@@ -35,21 +42,27 @@ async function createEvent(userId: string, vidId: string, eventType: string) {
   return json;
 }
 
-export default function VideoActions({ vid, userId }: Props) {
-  const [liked, setLiked] = useState(false);
-  const [bookmarked, setBookmarked] = useState(false);
+export default function VideoActions({ vid }: { vid: Video }) {
+  const { user, accessToken } = useAuth();
+  const [liked, setLiked] = useState(vid.user_action.liked);
+  const [bookmarked, setBookmarked] = useState(vid.user_action.bookmarked);
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (eventType: string) => createEvent(userId, vid.id, eventType),
+    mutationFn: (eventType: string) => {
+      if (!user) throw new Error("Not authenticated");
+      return createEvent(user.id, vid.id, eventType, accessToken!);
+    },
     onSuccess: () => {
-      // ✅ optimistically refresh stats
-      queryClient.invalidateQueries({ queryKey: ["videos", vid.id] });
-      queryClient.invalidateQueries({ queryKey: ["feed"] });
+      queryClient.invalidateQueries({ queryKey: ["videos"] });
     },
   });
 
   const sendEvent = (eventType: EventType) => {
+    if (eventType === "unlike" || eventType === "like") setLiked(!liked);
+    if (eventType === "bookmark" || eventType === "remove_bookmark")
+      setBookmarked(!bookmarked);
+
     mutation.mutate(eventType);
   };
 
@@ -61,8 +74,16 @@ export default function VideoActions({ vid, userId }: Props) {
       </button>
 
       {/* Like */}
-      <button className={buttonClass} onClick={() => sendEvent("like")}>
-        <Heart className="w-6 h-6 fill-neutral-200" />
+      <button
+        className={buttonClass}
+        onClick={() => sendEvent(liked ? "unlike" : "like")}
+      >
+        <Heart
+          className={cn(
+            "w-6 h-6 fill-neutral-200",
+            liked && "fill-red-500 stroke-red-500"
+          )}
+        />
         <span>{vid.stats.likes}</span>
       </button>
 
@@ -73,8 +94,16 @@ export default function VideoActions({ vid, userId }: Props) {
       </button>
 
       {/* Bookmark */}
-      <button className={buttonClass} onClick={() => sendEvent("bookmark")}>
-        <Bookmark className="w-6 h-6 fill-neutral-200" />
+      <button
+        className={buttonClass}
+        onClick={() => sendEvent(bookmarked ? "remove_bookmark" : "bookmark")}
+      >
+        <Bookmark
+          className={cn(
+            "w-6 h-6 fill-neutral-200",
+            bookmarked && "fill-yellow-500 stroke-yellow-500"
+          )}
+        />
       </button>
 
       {/* Share */}

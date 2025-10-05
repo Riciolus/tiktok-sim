@@ -15,7 +15,7 @@ async function getVideos() {
 
 const FeedSection = () => {
   const [playingId, setPlayingId] = useState<string | null>(null);
-  const [volume, setVolume] = useState(10);
+  const [volume, setVolume] = useState(0.5);
   const [showVolume, setShowVolume] = useState(false);
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
 
@@ -75,7 +75,7 @@ const FeedSection = () => {
     }
   }, [volume, playingId]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return null;
   if (error) return <p>Error loading videos</p>;
 
   return (
@@ -93,7 +93,7 @@ const FeedSection = () => {
             isActive={playingId === vid.id}
             playingId={playingId}
             setPlayingId={setPlayingId}
-            volume={0}
+            volume={volume}
             setVolume={setVolume}
             showVolume={showVolume}
             setShowVolume={setShowVolume}
@@ -102,10 +102,7 @@ const FeedSection = () => {
           />
 
           <div className="absolute z-10 md:static right-3 flex flex-col items-center justify-center">
-            <VideoActions
-              userId="8e3f360e-e1a1-46a5-ad05-87e452e68f36"
-              vid={vid}
-            />
+            <VideoActions vid={vid} />
           </div>
         </div>
       ))}
