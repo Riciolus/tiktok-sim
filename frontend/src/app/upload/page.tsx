@@ -4,7 +4,7 @@ import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 type NewVideo = {
@@ -48,7 +48,6 @@ export default function UploadPage() {
   });
 
   const handleUpload = async () => {
-    console.log(file);
     if (!file) return;
 
     const { data, error } = await supabase.storage
@@ -60,19 +59,16 @@ export default function UploadPage() {
       return;
     }
 
-    console.log("Uploaded file path:", data.path);
+    const plainDescription = description.replace(hashtagRegex, "").trim();
 
     const { data: urlData } = supabase.storage
       .from("videos")
       .getPublicUrl(data.path);
 
-    console.log("Public URL:", urlData.publicUrl);
-
-    // ✅ Now mutation is available
     mutation.mutate({
       filename: file.name,
       url: urlData.publicUrl,
-      caption: description,
+      caption: plainDescription,
       tags: hashtags,
     });
   };
@@ -162,6 +158,8 @@ export default function UploadPage() {
   );
 }
 
+const hashtagRegex = /#(\w+)/g;
+
 const DescriptionInput = ({
   description,
   setDescription,
@@ -172,19 +170,15 @@ const DescriptionInput = ({
   setHashtags: (tags: string[]) => void;
 }) => {
   // Regex to match hashtags: words starting with # followed by letters/numbers/underscore
-  const hashtagRegex = /#[\w]+/g;
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    console.log("rerender");
-
     const value = e.target.value;
+
+    // Keep full text in textarea
     setDescription(value);
 
-    // Find hashtags
-    const matches = value.match(hashtagRegex) || [];
-    // Remove duplicates (optional)
-    const uniqueTags = [...new Set(matches)];
-
-    setHashtags(uniqueTags);
+    // Extract hashtags
+    const matches = [...value.matchAll(hashtagRegex)].map((m) => m[1]);
+    setHashtags([...new Set(matches)]);
   };
 
   return (
@@ -202,7 +196,7 @@ const DescriptionInput = ({
   );
 };
 
-const VideoPreview = ({ file }: { file: File }) => {
+const VideoPreview = React.memo(({ file }: { file: File }) => {
   return (
     <div className="flex justify-end">
       <video
@@ -212,4 +206,6 @@ const VideoPreview = ({ file }: { file: File }) => {
       />
     </div>
   );
-};
+});
+
+VideoPreview.displayName = "VideoPreview";
