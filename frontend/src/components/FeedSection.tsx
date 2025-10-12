@@ -15,7 +15,7 @@ async function getVideos() {
 
 const FeedSection = () => {
   const [playingId, setPlayingId] = useState<string | null>(null);
-  const [volume, setVolume] = useState(0.5);
+  const [volume, setVolume] = useState(0);
   const [showVolume, setShowVolume] = useState(false);
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
 

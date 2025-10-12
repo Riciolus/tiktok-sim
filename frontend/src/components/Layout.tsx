@@ -1,15 +1,14 @@
 // components/Layout.tsx
 "use client";
 
-import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import AuthModal from "@/components/AuthModal";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useSign } from "@/context/SignContext";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-
+  const { isLoginOpen, setIsLoginOpen } = useSign();
   return (
     <div className="flex flex-col md:flex-row h-screen">
       {!isMobile && <Sidebar onLoginClick={() => setIsLoginOpen(true)} />}

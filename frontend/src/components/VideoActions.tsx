@@ -1,4 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
+import { useSign } from "@/context/SignContext";
 import { Video } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -44,6 +45,7 @@ async function createEvent(
 
 export default function VideoActions({ vid }: { vid: Video }) {
   const { user, accessToken } = useAuth();
+  const { setIsLoginOpen } = useSign();
   const [liked, setLiked] = useState(vid.user_action.liked);
   const [bookmarked, setBookmarked] = useState(vid.user_action.bookmarked);
   const queryClient = useQueryClient();
@@ -59,6 +61,11 @@ export default function VideoActions({ vid }: { vid: Video }) {
   });
 
   const sendEvent = (eventType: EventType) => {
+    if (!user) {
+      setIsLoginOpen(true);
+      return;
+    }
+
     if (eventType === "unlike" || eventType === "like") setLiked(!liked);
     if (eventType === "bookmark" || eventType === "remove_bookmark")
       setBookmarked(!bookmarked);

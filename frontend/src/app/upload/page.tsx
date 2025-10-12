@@ -4,7 +4,7 @@ import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 type NewVideo = {
@@ -197,13 +197,18 @@ const DescriptionInput = ({
 };
 
 const VideoPreview = React.memo(({ file }: { file: File }) => {
+  // create URL once and memoize
+  const videoURL = useMemo(() => URL.createObjectURL(file), [file]);
+
+  // revoke when component unmounts or file changes
+  useEffect(() => {
+    return () => {
+      URL.revokeObjectURL(videoURL);
+    };
+  }, [videoURL]);
   return (
     <div className="flex justify-end">
-      <video
-        src={URL.createObjectURL(file)}
-        controls
-        className="w-1/2 rounded-xl shadow"
-      />
+      <video src={videoURL} controls className="w-1/2 rounded-xl shadow" />
     </div>
   );
 });
