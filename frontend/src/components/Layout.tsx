@@ -5,10 +5,15 @@ import Sidebar from "@/components/Sidebar";
 import AuthModal from "@/components/AuthModal";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useSign } from "@/context/SignContext";
+import CommentPanel from "./CommentPanel";
+import { useComment } from "@/context/CommentContext";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
+
+  const { isCommentActive } = useComment();
   const { isLoginOpen, setIsLoginOpen } = useSign();
+
   return (
     <div className="flex flex-col md:flex-row h-screen">
       {!isMobile && <Sidebar onLoginClick={() => setIsLoginOpen(true)} />}
@@ -18,6 +23,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {isMobile && <BottomNavbar />}
       {/* Login popup */}
       {isLoginOpen && <AuthModal onClose={() => setIsLoginOpen(false)} />}
+
+      {isCommentActive && <CommentPanel />}
     </div>
   );
 }

@@ -33,7 +33,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       className="h-screen w-full flex justify-center max-h-[calc(100vh-7rem)] md:max-h-screen items-center bg-neutral-800/5 snap-start "
     >
       {/* the video */}
-      <div className="relative w-full flex justify-center   items-center h-fit min-w-screen  md:min-w-xl max-w-5xl overflow-hidden md:rounded-xl">
+      <div className="relative w-full flex justify-center   items-center h-fit min-w-screen  md:min-w-md max-w-5xl overflow-hidden md:rounded-xl">
         {/* Play Icon Overlay */}
         <div className="absolute inset-0 w-full h-full flex justify-center items-center">
           {!isActive && <Play className="w-22 h-22 fill-white stroke-white" />}

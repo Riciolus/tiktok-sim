@@ -1,4 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
+import { useComment } from "@/context/CommentContext";
 import { useSign } from "@/context/SignContext";
 import { Video } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -46,6 +47,7 @@ async function createEvent(
 export default function VideoActions({ vid }: { vid: Video }) {
   const { user, accessToken } = useAuth();
   const { setIsLoginOpen } = useSign();
+  const { setIsCommentActive } = useComment();
   const [liked, setLiked] = useState(vid.user_action.liked);
   const [bookmarked, setBookmarked] = useState(vid.user_action.bookmarked);
   const queryClient = useQueryClient();
@@ -73,6 +75,10 @@ export default function VideoActions({ vid }: { vid: Video }) {
     mutation.mutate(eventType);
   };
 
+  const toggleCommentSection = () => {
+    setIsCommentActive((prev) => !prev);
+  };
+
   return (
     <div className="flex flex-col items-center space-y-5 md:mb-6">
       {/* Profile placeholder */}
@@ -95,7 +101,10 @@ export default function VideoActions({ vid }: { vid: Video }) {
       </button>
 
       {/* Comment */}
-      <button className={buttonClass} onClick={() => sendEvent("comment")}>
+      <button
+        className={buttonClass}
+        onClick={() => toggleCommentSection(vid.id)}
+      >
         <MessageCircle className="w-6 h-6 fill-neutral-200" />
         <span>{vid.stats.comments}</span>
       </button>

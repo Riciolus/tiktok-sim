@@ -126,7 +126,7 @@ export default function UploadPage() {
                 />
                 {hashtags.length > 0 && (
                   <div className="flex space-x-2">
-                    <p className="font-medium">Extracted Hashtags:</p>
+                    <p className="font-medium">Hashtags:</p>
                     {hashtags.map((tag) => (
                       <p key={tag} className="text-gray-400">
                         {tag}

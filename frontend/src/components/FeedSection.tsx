@@ -17,6 +17,7 @@ const FeedSection = () => {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [volume, setVolume] = useState(0);
   const [showVolume, setShowVolume] = useState(false);
+
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
 
   const {
@@ -68,6 +69,10 @@ const FeedSection = () => {
     }
   };
 
+  // const toggleCommentSection = (vidId: string) => {
+  //   setCommentSectionOpen((prev) => !prev);
+  // };
+
   // Keep actual DOM volume synced
   useEffect(() => {
     if (playingId && videoRefs.current[playingId]) {
@@ -104,6 +109,9 @@ const FeedSection = () => {
           <div className="absolute z-10 md:static right-3 flex flex-col items-center justify-center">
             <VideoActions vid={vid} />
           </div>
+
+          {/* mobile comment section */}
+          {/* <div className="w-full h-1/2 absolute bg-neutral-200"></div> */}
         </div>
       ))}
     </section>

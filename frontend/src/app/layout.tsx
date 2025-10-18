@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { AuthProvider } from "@/context/AuthContext";
 import { SignProvider } from "@/context/SignContext";
+import { CommentProvider } from "@/context/CommentContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,9 @@ export default function RootLayout({
       >
         <Providers>
           <AuthProvider>
-            <SignProvider>{children}</SignProvider>
+            <SignProvider>
+              <CommentProvider>{children}</CommentProvider>
+            </SignProvider>
           </AuthProvider>
         </Providers>
       </body>
