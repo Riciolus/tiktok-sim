@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import VideoPlayer from "./VideoPlayer";
 import VideoActions from "./VideoActions";
 import { Video } from "@/lib/types";
+import { usePlayer } from "@/context/PlayerContext";
 
 async function getVideos() {
   const res = await fetch("http://localhost:8080/api/videos");
@@ -14,7 +15,7 @@ async function getVideos() {
 }
 
 const FeedSection = () => {
-  const [playingId, setPlayingId] = useState<string | null>(null);
+  const { playingId, setPlayingId } = usePlayer();
   const [volume, setVolume] = useState(0);
   const [showVolume, setShowVolume] = useState(false);
 

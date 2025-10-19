@@ -101,10 +101,7 @@ export default function VideoActions({ vid }: { vid: Video }) {
       </button>
 
       {/* Comment */}
-      <button
-        className={buttonClass}
-        onClick={() => toggleCommentSection(vid.id)}
-      >
+      <button className={buttonClass} onClick={() => toggleCommentSection()}>
         <MessageCircle className="w-6 h-6 fill-neutral-200" />
         <span>{vid.stats.comments}</span>
       </button>

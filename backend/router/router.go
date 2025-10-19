@@ -32,6 +32,7 @@ func SetupRouter(pool *pgxpool.Pool) *gin.Engine {
 		vc := &controllers.VideoController{DB: pool}
 		uc := &controllers.UserController{DB: pool}
 		ec := &controllers.EventController{DB: pool}
+		cc := &controllers.CommentController{DB: pool}
 		ac := &controllers.AuthController{DB: pool}
 
 		// USERS
@@ -49,8 +50,14 @@ func SetupRouter(pool *pgxpool.Pool) *gin.Engine {
 			// auth.GET("/session", authController.Session)
 		}
 		// VIDEOS
-		api.GET("/videos", vc.GetVideos)
-		api.POST("/videos", middleware.AuthMiddleware(), vc.CreateVideo)
+		videos := api.Group("/videos")
+		{
+			videos.GET("", vc.GetVideos)
+			videos.POST("", middleware.AuthMiddleware(), vc.CreateVideo)
+
+			videos.POST("/:video_id/comments", middleware.AuthMiddleware(), cc.CreateComment)
+			videos.GET("/:video_id/comments", cc.GetCommentsByVideo)
+		}
 
 		// EVENTS
 		api.POST("/events",middleware.AuthMiddleware(), ec.CreateEvent)

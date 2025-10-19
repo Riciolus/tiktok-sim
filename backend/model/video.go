@@ -34,11 +34,4 @@ type VideoEmbeddings struct {
 	GlobalPopularityScore float64   `json:"global_popularity_score"`
 }
 
-// still havent known the flow for this...
-type Comment struct {
-	ID        string `json:"id"`
-	VideoID   string `json:"video_id"`
-	UserID    string `json:"user_id"`
-	Content   string `json:"content"`
-	CreatedAt string `json:"created_at"`
-}
+

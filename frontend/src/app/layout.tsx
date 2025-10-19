@@ -5,6 +5,7 @@ import { Providers } from "./providers";
 import { AuthProvider } from "@/context/AuthContext";
 import { SignProvider } from "@/context/SignContext";
 import { CommentProvider } from "@/context/CommentContext";
+import { PlayerProvider } from "@/context/PlayerContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,11 +33,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <AuthProvider>
-            <SignProvider>
-              <CommentProvider>{children}</CommentProvider>
-            </SignProvider>
-          </AuthProvider>
+          <PlayerProvider>
+            <AuthProvider>
+              <SignProvider>
+                <CommentProvider>{children}</CommentProvider>
+              </SignProvider>
+            </AuthProvider>
+          </PlayerProvider>
         </Providers>
       </body>
     </html>
