@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"tiktok-sim/backend/model"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -29,11 +30,20 @@ func (cc *CommentController) GetCommentsByVideo (c *gin.Context) {
 	videoID := c.Param("video_id")
 
 	rows, err := cc.DB.Query(context.Background(), `
-	SELECT *
-	FROM comments
-	WHERE video_id = $1
-	ORDER BY created_at DESC
-	`, videoID)
+	SELECT
+	c.id AS comment_id,
+	c.video_id AS video_id,
+	c.content,
+	c.created_at,
+	c.user_id AS author_id,
+	u.username AS author_username,
+	u.avatar AS author_avatar
+	FROM comments c
+	JOIN users u ON c.user_id = u.id
+	WHERE c.video_id = $1
+	ORDER BY c.created_at DESC
+	`, 
+	videoID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -41,23 +51,40 @@ func (cc *CommentController) GetCommentsByVideo (c *gin.Context) {
 	}
 	defer rows.Close()
 
-	comments := []model.Comment{}
+	var comments []model.CommentResponse
 	for rows.Next() {
-		var cmt model.Comment
-		err := rows.Scan(
-			&cmt.ID,
-			&cmt.VideoID,
-			&cmt.UserID,
-			&cmt.Content,
-			&cmt.CreatedAt,
+		var (
+			id        string
+			video_id  string
+			content   string
+			createdAt time.Time
+			userID    string
+			username  string
+			avatarURL *string
 		)
 
-		if err != nil {
+		if err := rows.Scan(&id, &video_id, &content, &createdAt, &userID, &username, &avatarURL); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		comments = append(comments, cmt)
+
+		comments = append(comments, model.CommentResponse{
+			ID:        id,
+			VideoID:   video_id, 
+			Content:   content,
+			CreatedAt: createdAt,
+			Author: model.Author{
+				ID:        userID,
+				Username:  username,
+				AvatarURL: avatarURL,
+			},
+		})
 	}
 
-	c.JSON(http.StatusOK, gin.H{"comments": comments})
+	if err := rows.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, comments)
 }
