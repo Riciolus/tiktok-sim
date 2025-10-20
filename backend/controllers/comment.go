@@ -59,5 +59,5 @@ func (cc *CommentController) GetCommentsByVideo (c *gin.Context) {
 		comments = append(comments, cmt)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": comments})
+	c.JSON(http.StatusOK, gin.H{"comments": comments})
 }

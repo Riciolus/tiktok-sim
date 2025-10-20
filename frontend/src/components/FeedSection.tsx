@@ -9,7 +9,7 @@ import { usePlayer } from "@/context/PlayerContext";
 
 async function getVideos() {
   const res = await fetch("http://localhost:8080/api/videos");
-  if (!res.ok) throw new Error("Failed to fetch");
+  if (!res.ok) throw new Error("Failed to fetch videos");
   const json = await res.json();
   return json.videos;
 }
