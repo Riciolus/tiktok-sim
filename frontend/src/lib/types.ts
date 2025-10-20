@@ -31,7 +31,11 @@ interface UserAction {
 export interface Comment {
   id: string;
   video_id: string;
-  user_id: string;
   content: string;
   created_at: string;
+  author: {
+    id: string;
+    username: string;
+    avatar: string;
+  };
 }
