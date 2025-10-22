@@ -1,6 +1,9 @@
 import { usePlayer } from "@/context/PlayerContext";
-import { Comment } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
+import { Comment } from "@/lib/types";
+import Image from "next/image";
+import Skeleton from "./Skeleton";
+import PostComment from "./PostComment";
 
 async function getComments(vidId: string | null) {
   const res = await fetch(
@@ -26,53 +29,61 @@ const CommentPanel = () => {
   if (error) return <p>Error loading comments</p>;
 
   return (
-    <div className="min-w-[2vw] max-w-[17vw] w-full flex-1  bg-neutral-800 h-screen ">
-      <div className="p-3 flex flex-col space-y-5">
-        <h4 className="font-semibold">
-          Comments ({comments ? comments.length : 0})
-        </h4>
+    <div className="p-3 flex flex-col justify-between h-full space-y-5">
+      <h4 className="font-semibold">
+        Comments ({comments ? comments.length : 0})
+      </h4>
 
+      {/* the comments */}
+      <div className="h-full">
         {isLoading ? (
           <div className="space-y-3">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="flex items-center space-x-2">
-                <Skeleton className="w-8 h-8 rounded-full shrink-0" />
-                <div className="flex flex-col space-y-2">
-                  <Skeleton className="w-28 h-5" />
-                  <Skeleton className="w-48 h-3" />
-                </div>
-              </div>
-            ))}
+            <SkeletonCommentList />
           </div>
         ) : comments && comments.length > 0 ? (
           comments.map((comment: Comment) => (
-            <div key={comment.id} className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-full bg-red-200 shrink-0" />
-              <div>
-                <span className="font-semibold">{comment.author.username}</span>
-                <p>{comment.content}</p>
-              </div>
-            </div>
+            <CommentCard key={comment.id} comment={comment} />
           ))
         ) : (
-          <>
-            <h3>Be the first to comment!</h3>
-            <ShowPanel />
-          </>
+          <div className="w-full flex justify-center items-center h-28">
+            <h3 className="text-neutral-300">Be the first to comment!</h3>
+          </div>
         )}
+      </div>
+
+      <PostComment />
+    </div>
+  );
+};
+
+const CommentCard = ({ comment }: { comment: Comment }) => {
+  return (
+    <div className="flex items-center space-x-2">
+      <div className="relative w-8 h-8 rounded-full bg-neutral-500 ">
+        <Image
+          src={comment.author.avatar_url || "/avatar-default.svg"}
+          alt=""
+          fill
+        />
+      </div>
+      <div>
+        <span>{comment.author.username}</span>
+        <p className="text-neutral-200">{comment.content}</p>
       </div>
     </div>
   );
 };
 
-function Skeleton({ className }: { className?: string }) {
-  return (
-    <div className={`animate-Xpulse bg-neutral-700 rounded ${className}`} />
-  );
-}
+const SkeletonCommentList = () => {
+  return [...Array(3)].map((_, i) => (
+    <div key={i} className="flex items-center space-x-2">
+      <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+      <div className="flex flex-col space-y-2">
+        <Skeleton className="w-28 h-5" />
+        <Skeleton className="w-48 h-3" />
+      </div>
+    </div>
+  ));
+};
 
 export default CommentPanel;
-
-const ShowPanel = () => {
-  return <div>tess</div>;
-};

@@ -7,6 +7,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { useSign } from "@/context/SignContext";
 import CommentPanel from "./CommentPanel";
 import { useComment } from "@/context/CommentContext";
+import { cn } from "@/lib/utils";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
@@ -15,7 +16,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { isLoginOpen, setIsLoginOpen } = useSign();
 
   return (
-    <div className="flex flex-col md:flex-row h-screen">
+    <div className="flex flex-col md:flex-row h-screen overflow-x-hidden">
       {!isMobile && <Sidebar onLoginClick={() => setIsLoginOpen(true)} />}
       {/* Main content */}
       <div className="flex-1">{children}</div>
@@ -24,7 +25,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Login popup */}
       {isLoginOpen && <AuthModal onClose={() => setIsLoginOpen(false)} />}
 
-      {isCommentActive && <CommentPanel />}
+      <div
+        className={cn(
+          "   bg-neutral-800 h-screen transition-all ",
+          isCommentActive ? "max-w-[17vw] w-md" : "w-0",
+        )}
+      >
+        {isCommentActive && <CommentPanel />}
+      </div>
     </div>
   );
 }

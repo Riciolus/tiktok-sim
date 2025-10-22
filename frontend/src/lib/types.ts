@@ -36,6 +36,6 @@ export interface Comment {
   author: {
     id: string;
     username: string;
-    avatar: string;
+    avatar_url: string;
   };
 }
