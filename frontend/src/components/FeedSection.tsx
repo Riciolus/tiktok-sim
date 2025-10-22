@@ -16,6 +16,7 @@ async function getVideos() {
 
 const FeedSection = () => {
   const { playingId, setPlayingId } = usePlayer();
+  const [pause, setPause] = useState(true);
   const [volume, setVolume] = useState(0);
   const [showVolume, setShowVolume] = useState(false);
 
@@ -41,12 +42,13 @@ const FeedSection = () => {
           if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
             video.play();
             setPlayingId(video.dataset.id!);
+            setPause(false);
           } else {
             video.pause();
           }
         });
       },
-      { threshold: [0.7] }
+      { threshold: [0.7] },
     );
 
     Object.values(videoRefs.current).forEach((v) => v && observer.observe(v));
@@ -57,16 +59,16 @@ const FeedSection = () => {
     const video = videoRefs.current[id];
     if (!video) return;
 
-    if (playingId === id) {
+    if (!pause) {
       video.pause();
-      setPlayingId(null);
+      setPause(true);
     } else {
       // pause all others
       Object.entries(videoRefs.current).forEach(([vidId, el]) => {
         if (el && vidId !== id) el.pause();
       });
       video.play();
-      setPlayingId(id);
+      setPause(false);
     }
   };
 
@@ -96,7 +98,7 @@ const FeedSection = () => {
         >
           <VideoPlayer
             vid={vid}
-            isActive={playingId === vid.id}
+            isPaused={pause}
             playingId={playingId}
             setPlayingId={setPlayingId}
             volume={volume}

@@ -5,7 +5,7 @@ import { Video } from "@/lib/types";
 
 type VideoPlayerProps = {
   vid: Video;
-  isActive: boolean; // whether this video is currently playing
+  isPaused: boolean; // whether this video is currently playing
   playingId: string | null;
   setPlayingId: (id: string | null) => void;
   volume: number;
@@ -18,7 +18,7 @@ type VideoPlayerProps = {
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({
   vid,
-  isActive,
+  isPaused,
   volume,
   setVolume,
   showVolume,
@@ -36,7 +36,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       <div className="relative w-full flex justify-center   items-center h-fit min-w-screen  md:min-w-md max-w-5xl overflow-hidden md:rounded-xl">
         {/* Play Icon Overlay */}
         <div className="absolute inset-0 w-full h-full flex justify-center items-center">
-          {!isActive && <Play className="w-22 h-22 fill-white stroke-white" />}
+          {isPaused && <Play className="w-22 h-22 fill-white stroke-white" />}
         </div>
 
         {/* Video */}
@@ -73,7 +73,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 value={volume}
                 onChange={(e) => setVolume(Number(e.target.value))}
                 className="
-                w-full h-1 rounded-lg appearance-none cursor-pointer 
+                w-full h-1 rounded-lg appearance-none cursor-pointer
                 bg-neutral-400 accent-neutral-600
               "
               />
