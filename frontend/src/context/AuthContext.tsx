@@ -17,26 +17,26 @@ const AuthContext = createContext<{
   accessToken: null,
 });
 
+async function refreshAccessToken() {
+  const res = await fetch("http://localhost:8080/api/auth/refresh", {
+    method: "POST",
+    credentials: "include", // include the cookie
+  });
+
+  if (res.status === 204) return null;
+
+  const data = await res.json();
+  return data.access_token;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
-  async function refreshAccessToken() {
-    const res = await fetch("http://localhost:8080/api/auth/refresh", {
-      method: "POST",
-      credentials: "include", // include the cookie
-    });
-
-    if (!res.ok) return null;
-
-    const data = await res.json();
-    setAccessToken(data.access_token);
-    return data.access_token;
-  }
-
   useEffect(() => {
     refreshAccessToken().then((token) => {
       if (token) {
+        setAccessToken(token);
         // fetch user profile
         fetch("http://localhost:8080/api/auth/me", {
           headers: { Authorization: `Bearer ${token}` },

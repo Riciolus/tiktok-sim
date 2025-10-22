@@ -3,7 +3,9 @@ import { Comment } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 
 async function getComments(vidId: string | null) {
-  const res = await fetch(`http://localhost:8080/api/videos/${vidId}/comments`);
+  const res = await fetch(
+    `http://localhost:8080/api/videos/${vidId || " "}/comments`,
+  );
   if (!res.ok) throw new Error("Failed to fetch comments");
   const json = await res.json();
   return json;
@@ -53,7 +55,10 @@ const CommentPanel = () => {
             </div>
           ))
         ) : (
-          <h3>Be the first to comment!</h3>
+          <>
+            <h3>Be the first to comment!</h3>
+            <ShowPanel />
+          </>
         )}
       </div>
     </div>
@@ -67,3 +72,7 @@ function Skeleton({ className }: { className?: string }) {
 }
 
 export default CommentPanel;
+
+const ShowPanel = () => {
+  return <div>tess</div>;
+};

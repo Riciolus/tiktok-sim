@@ -136,7 +136,7 @@ func (ac *AuthController) Refresh(c *gin.Context) {
 	// Get refresh token from cookie
 	refreshToken, err := c.Cookie("refresh_token")
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "no refresh token"})
+		c.JSON(http.StatusNoContent, gin.H{"error": "no refresh token"})
 		return
 	}
 
