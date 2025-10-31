@@ -29,6 +29,7 @@ const FeedSection = () => {
   } = useQuery({
     queryKey: ["videos"],
     queryFn: getVideos,
+    refetchOnWindowFocus: false,
   });
 
   // Detect visible video
@@ -53,7 +54,7 @@ const FeedSection = () => {
 
     Object.values(videoRefs.current).forEach((v) => v && observer.observe(v));
     return () => observer.disconnect();
-  }, [videos]);
+  }, [videos, setPlayingId]);
 
   const togglePlay = (id: string) => {
     const video = videoRefs.current[id];

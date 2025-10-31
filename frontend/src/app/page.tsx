@@ -2,7 +2,7 @@
 
 import FeedSection from "@/components/FeedSection";
 import Layout from "@/components/Layout";
-import UploadButton from "@/components/UploadButton";
+// import UploadButton from "@/components/UploadButton";
 
 export default function Feed() {
   return (

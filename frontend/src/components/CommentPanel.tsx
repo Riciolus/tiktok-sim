@@ -24,6 +24,7 @@ const CommentPanel = () => {
   } = useQuery({
     queryKey: ["comments", playingId],
     queryFn: () => getComments(playingId),
+    refetchOnWindowFocus: false,
   });
 
   if (error) return <p>Error loading comments</p>;
@@ -58,7 +59,7 @@ const CommentPanel = () => {
 
 const CommentCard = ({ comment }: { comment: Comment }) => {
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-2 py-1">
       <div className="relative w-8 h-8 rounded-full bg-neutral-500 ">
         <Image
           src={comment.author.avatar_url || "/avatar-default.svg"}

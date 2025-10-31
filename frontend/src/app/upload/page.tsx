@@ -75,6 +75,7 @@ export default function UploadPage() {
 
   const onDrop = (acceptedFiles: File[]) => {
     const video = acceptedFiles[0];
+
     if (video) {
       setFile(video);
     }
